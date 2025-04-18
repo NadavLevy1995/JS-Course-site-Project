@@ -1,26 +1,26 @@
 const express = require('express');
 const connectToDB = require('../db/connection');
-const Task = require('../DB/models/Task');
+const Task = require('../db/models/Task');
 
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware – כדי שנוכל לקבל JSON מהלקוח
+// Middleware – allows parsing JSON requests
 app.use(express.json());
 
-// התחברות למסד הנתונים
+// Connect to the MongoDB database
 connectToDB();
 
-// בדיקה שהשרת עובד
+// Simple route to check server status
 app.get('/', (req, res) => {
   res.json({ message: '✅ Server is up and running!' });
 });
 
-// בקרוב: נכניס כאן route שיחזיר משימה לפי title
+// Coming soon: route to fetch a task by title
 
-// התחלת השרת
+// Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
