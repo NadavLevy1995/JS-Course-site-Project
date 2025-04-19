@@ -39,11 +39,12 @@ io.on("connection", (socket) => {
     if (!roomCache[roomId]) {
       try {
         const roomFromDB = await Room.findOne({ title: roomId });
-        console.log("📦 Loaded room from DB:", {
-          title: roomFromDB.title,
-          baseCode: roomFromDB.baseCode,
-          referenceCode: roomFromDB.referenceCode,
-        });
+     //    console.log("🔍 Query result for roomId:", roomId, "→", roomFromDB);
+     //    console.log("📦 Loaded room from DB:", {
+     //      title: roomFromDB.title,
+     //      baseCode: roomFromDB.baseCode,
+     //      referenceCode: roomFromDB.referenceCode,
+     //    });
         
 
         if (!roomFromDB) {
