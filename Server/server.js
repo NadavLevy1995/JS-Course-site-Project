@@ -30,36 +30,31 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`🔌 User connected: ${socket.id}`);
 
-  // Join a room
+  // Join a specific room
   socket.on("join_room", async ({ roomId, user }) => {
     socket.join(roomId);
     console.log(`${user} joined room ${roomId}`);
 
-    // Load room from DB if not in cache
+    // Load room data from DB only if not already in cache
     if (!roomCache[roomId]) {
       try {
         const roomFromDB = await Room.findOne({ title: roomId });
-     //    console.log("🔍 Query result for roomId:", roomId, "→", roomFromDB);
-     //    console.log("📦 Loaded room from DB:", {
-     //      title: roomFromDB.title,
-     //      baseCode: roomFromDB.baseCode,
-     //      referenceCode: roomFromDB.referenceCode,
-     //    });
-        
 
         if (!roomFromDB) {
           socket.emit("error", "Room not found");
           return;
         }
 
-        // Store in cache
+        // Store data in memory cache
         roomCache[roomId] = {
+          description: roomFromDB.description,
           content: roomFromDB.baseCode,
           referenceCode: roomFromDB.referenceCode,
           usersCount: 0,
           lastUpdated: null,
           locked: false
         };
+
       } catch (err) {
         console.error("❌ Error loading room from DB:", err.message);
         socket.emit("error", "Database error");
@@ -67,11 +62,15 @@ io.on("connection", (socket) => {
       }
     }
 
-    // Send base code to client
-    socket.emit("load_code", roomCache[roomId].content);
+    // ✅ Send code and description to the user from cache
+    socket.emit("load_code", {
+      content: roomCache[roomId].content,
+      description: roomCache[roomId].description,
+      referenceCode: roomCache[roomId].referenceCode,
+    });
   });
 
-  // Receive code update from a user and broadcast to others
+  // Receive code update from a user and broadcast to others in the room
   socket.on("code_change", ({ roomId, content }) => {
     if (roomCache[roomId]) {
       roomCache[roomId].content = content;
